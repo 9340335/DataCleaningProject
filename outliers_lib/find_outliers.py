@@ -61,3 +61,28 @@ def find_outliers_z_score(data, feature, left=3, right=3, log_scale=False):
 
 def test_func():
     pass
+
+
+def find_outliers_quantile(data, feature, left=0.01, right=0.98):
+    """
+    Находит выбросы в данных, используя в качестве границ допустимых данных квантили определенного уровня. 
+    В результате наблюдения, не попавшие в интервал, считаются выбросами, а вошедшие в интервал - принимаются во внимание. 
+    По умолчанию заданы границы 1% слева и 1 % справа.  
+    
+    Args:
+        data (pandas.DataFrame): набор данных
+        feature (str): имя признака, на основе которого происходит поиск выбросов
+        left (float, optional): Значение квантиля от начала распределения. По умолчанию 1% или 0.01.
+        right (float, optional): Значение квантиля от конца распределения. По умолчанию 1% или 0.99.
+        
+    Returns:
+        pandas.DataFrame: наблюдения, попавшие в разряд выбросов
+        pandas.DataFrame: очищенные данные, из которых исключены выбросы
+    """    
+    
+    x=data[feature]
+    lower_bound = x.quantile(left)
+    upper_bound = x.quantile(right)
+    outliers = data[(x < lower_bound) | (x > upper_bound)]
+    cleaned = data[(x < upper_bound) & (x > lower_bound)]
+    return outliers, cleaned
